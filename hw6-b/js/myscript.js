@@ -23,6 +23,154 @@ $(document).ready(function(){
     } // End if
   });
 
+  // portrait
+
+  $('#portrait-cont').hover(
+    function() {
+      $("#portrait").attr("src","assets/me2.jpg");
+      // $('#portrait').animateCssFade('flipOutY');
+      // $('#portrait').animateCss('fadeOut');
+    }, function () {
+      $("#portrait").attr("src","assets/me.jpg");
+      // $('#portrait').animateCss('flipInY')
+  });
+
+
+  // // borrowed from http://stackoverflow.com/questions/3971841/how-to-resize-images-proportionally-keeping-the-aspect-ratio
+  //   $('.work-item-pad img').each(function() {
+  //       var imgContainer = $(".work-item-pad");
+  //       var maxWidth = $(imgContainer).width(); // Max width for the image
+  //       var maxHeight = $(imgContainer).height(); // Max height for the image
+  //       var ratio = 0;  // Used for aspect ratio
+  //       var width = $(this).width();    // Current image width
+  //       var height = $(this).height();  // Current image height
+  //       console.log(maxWidth, maxHeight);
+
+  //       // Check if the current width is larger than the max
+  //       if(width > maxWidth){
+  //           ratio = maxWidth / width;   // get ratio for scaling image
+  //           $(this).css("width", maxWidth); // Set new width
+  //           $(this).css("height", height * ratio);  // Scale height based on ratio
+  //           height = height * ratio;    // Reset height to match scaled image
+  //           width = width * ratio;    // Reset width to match scaled image
+  //       }
+
+  //       // Check if current height is larger than max
+  //       if(height > maxHeight){
+  //           ratio = maxHeight / height; // get ratio for scaling image
+  //           $(this).css("height", maxHeight);   // Set new height
+  //           $(this).css("width", width * ratio);    // Scale width based on ratio
+  //           width = width * ratio;    // Reset width to match scaled image
+  //           height = height * ratio;    // Reset height to match scaled image
+  //       }
+  //   });
+
+  var currentContRatio = 0;
+
+  function setWorkRatio () {
+    var imgContainer = $(".work-item-pad");
+    var contWidth = $(imgContainer).width(); // Max width for the image
+    var contHeight = $(imgContainer).height(); // Max height for the image
+    var contRatio = contWidth / contHeight; // Used for cont aspect ratio
+    if (contRatio != currentContRatio) {
+      sizeAll();
+      currentContRatio = contRatio;
+    }
+  }
+
+  function sizeWork(img, scale, anim) {
+    var cont = img.parent();
+    var contWidth = $(cont).width(); // Max width for the image
+    var contWidthScl = contWidth * scale;
+    var contHeight = $(cont).height(); // Max height for the image
+    var contHeightScl = contHeight * scale;
+    var contRatio = contWidthScl / contHeightScl; // Used for cont aspect ratio
+    var imgWidth = $(img).width();    // Current image width
+    var imgHeight = $(img).height();  // Current image height
+    var imgRatio = imgWidth / imgHeight; // Used for img aspect ratio
+    var fade = 0;
+    if (anim) {fade = 400;}
+
+    // console.log(contRatio, imgRatio);
+
+    var overlay = img.parent().find(".work-item-overlay");
+    // console.log(overlay);
+    overlay.css("width", contWidth);
+    overlay.css("height", contHeight);
+    overlay.css("top", cont.position().top);
+    overlay.css("left", cont.position().left);
+
+    if (contRatio > imgRatio) {
+      var newWidth = contWidthScl;
+      var newHeight = contWidthScl / imgRatio;
+      var offsetY = (newHeight - contHeight) / 2;
+      var offsetX = (newWidth - contWidth) / 2;
+
+      $(img).animate({
+        width: contWidthScl,
+        height: contWidthScl / imgRatio,
+        top: -offsetY,
+        left: -offsetX
+      }, fade);
+    } else {
+      // $(img).css("width", contHeightScl * imgRatio);   // Set new height
+      // $(img).css("height", contHeightScl);    // Scale width based on ratio
+
+      // var offsetW = (contHeightScl / contRatio - contHeightScl) / 2;
+      // $(img).css("left", -offsetW);
+
+      var newWidth = contHeightScl * imgRatio;
+      var newHeight = contHeightScl;contHeightScl
+      var offsetY = (newHeight - contHeight) / 2;
+      var offsetX = (newWidth - contWidth) / 2;
+
+      $(img).animate({
+        width: contHeightScl * imgRatio,
+        height: contHeightScl,
+        top: -offsetY,
+        left: -offsetX
+      }, fade);
+    }
+  };
+
+  function sizeAll() {
+    $('.work-item-pad img').each(function() {
+      sizeWork($(this), 1, false);
+      // console.log("size!");
+    });
+  };
+
+  $(".work-item-pad").hover(function() {
+      //mouse in
+      sizeWork($(this).find("img"), 1.1, true);
+    }, function() {
+      //mouse out
+      sizeWork($(this).find("img"), 1, true);
+  });
+
+  $(window).resize(function() {
+    setWorkRatio();
+  });
+
+  $(window).ready(function() {
+    setWorkRatio();
+  })
+
+  // borrowed from bootstrap
+  // modal 
+  $('#modal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget) // Button that triggered the modal
+  var recipient = button.data('whatever') // Extract info from data-* attributes
+  var image = button.find('img');
+  image.css("width", "100%");
+  // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+  // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+  var modal = $(this)
+  modal.find('.modal-title').text(recipient)
+  modal.find('.modal-body #imghere').contents().remove();
+  image.clone().prependTo(modal.find('.modal-body #imghere'));
+  })
+
   // // borrowed from http://stackoverflow.com/questions/14425300/scale-image-properly-but-fit-inside-div
   // $('img').on('bestfit',function(){
   //   var css;
@@ -181,3 +329,25 @@ var cbpAnimatedHeader = (function() {
   init();
 
 })();
+
+
+// borrowed from 
+$.fn.extend({
+    animateCss: function (animationName, doOnEnd) {
+        var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+        this.addClass('animated ' + animationName).one(animationEnd, function() {
+            $(this).removeClass('animated ' + animationName);
+        });
+    }
+});
+
+// borrowed from 
+$.fn.extend({
+    animateCssFade: function (animationName, doOnEnd) {
+        var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+        this.addClass('animated ' + animationName).one(animationEnd, function() {
+            $(this).removeClass('animated ' + animationName);
+            $(this).animateCss('fadeOut');
+        });
+    }
+});
