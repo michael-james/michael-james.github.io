@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Peer Prototype</title>
+  <style type="text/css">
+    html {
+      background-color: black;
+    }
+
+    /*#wrapper {
+        min-height: 100%; 
+    }*/
+
+    .outer {
+        display: table;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    .middle {
+        display: table-cell;
+        vertical-align: middle;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    .inner {
+        margin-left: auto;
+        margin-right: auto; 
+        width: /*whatever width you want*/;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    #toggle {
+      left: 10px;
+      bottom: 5px;
+      z-index: 999;
+      position: absolute;
+    }
+
+    .svgCont {
+      width: 300px;
+      height: 300px;
+      position: absolute;
+      bottom: 0px;
+    }
+
+  </style> 
+</head>
+<body>
+  <div class="outer">
+    <div class="middle">
+      <div class="inner" id="wrapper"></div>
+    </div>
+  </div>
+
+  <div class="headersize svgCont" style="left: 25px">
+    <svg id="headersvg" viewBox="0 0 300 300" preserveAspectRatio="none"> <!-- style='background-color: whitesmoke' -->
+      <ellipse id="p1" cx="150" cy="150" rx="25" ry="25" style="fill:cyan; stroke:black; stroke-width: 3px" />
+    </svg>
+  </div>
+
+  <div class="headersize svgCont" style="right: 25px">
+    <svg id="headersvg" viewBox="0 0 300 300" preserveAspectRatio="none"> <!-- style='background-color: whitesmoke' -->
+      <ellipse id="p2" cx="150" cy="150" rx="25" ry="25" style="fill:magenta; stroke:black; stroke-width: 3px" />
+    </svg>
+  </div>
+
+  <!-- <button id="toggle" class="info">Fullscreen</button> -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/3.0.2/screenfull.min.js"></script>
+  <script src="js/plugins/mousetrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.ui.min.js"></script>
+
+  <!-- <script src="js/plugins/velocity.min.js"></script> -->
+  <!-- <script src="js/plugins/velocity.ui.js"></script> -->
+  <script type="text/javascript">
+    var index=0;
+    var imgCnt = 15;
+    var frame = 0;
+
+    function changeBanner(){ 
+      [].forEach.call(document.images,function (v,i) {
+        document.images[i].hidden = i!==index
+      });
+      index = (index+1) % document.images.length;
+    }
+
+    function generateImages(wWidth, wHeight) {
+      var margin = 15;
+      wWidth -= margin;
+      wHeight -= margin;
+      for (var i = 0; i < imgCnt; i++) {
+        var elem = document.createElement("img");
+        if (i < 10) {
+          p = '0' + i;
+        }
+        else {
+          p = i;
+        }
+        var imgURL = "images/page0" + p + ".jpg";
+        var imgW = 5712;
+        var imgH = 3333;
+        console.log(imgURL);
+        elem.src = imgURL;
+        elem.setAttribute("height", (wWidth * imgH) / imgW);
+        elem.setAttribute("width", wWidth);
+        elem.setAttribute("alt", "Flower");
+        document.getElementById("wrapper").appendChild(elem);
+      }
+    }
+
+    window.onload = function () {
+      var wWidth = window.innerWidth;
+      var wHeight = window.innerHeight;
+      generateImages(wWidth, wHeight);
+      // setInterval(changeBanner, 3000);
+      changeBanner();
+      setInterval(loop, 30);
+    };
+
+    Mousetrap.bind('f', function() {
+      console.log("hi!!!!!")
+      screenfull.toggle($('#container')[0]);
+    });
+
+    Mousetrap.bind('left', function() {
+      index -= 2;
+      changeBanner();
+    });
+
+    Mousetrap.bind('right', function() {
+      changeBanner();
+    });
+
+
+    // game
+
+    var rMin = 25;
+    var rMax = 255/1.5 - 30;
+    var p1Mx = 100;
+    var p2Mx = 100;
+    var inc = 20;
+
+    Mousetrap.bind('1', function() {
+      var p1 = $("#p1");
+      if (p1Mx <= rMax - inc) {p1Mx += inc;}
+      animate(p1, p1Mx);
+      console.log(p1Mx);
+    });
+
+    Mousetrap.bind('2', function() {
+      var p2 = $("#p2");
+      if (p2Mx <= rMax - inc) {p2Mx += inc;}
+      animate(p2, p2Mx);
+      console.log(p2Mx);
+    });
+
+    function animate(cir, mx) {
+      frame += 1;
+
+      Math.sin(frame/50)
+
+      $(cir).velocity({ 
+        rx: mx, ry: mx}, {
+        duration: 125, easing: "swing",
+      }).velocity({ 
+        rx: rMin, ry: rMin}, {
+        duration: 125, easing: "swing",
+      });
+    }
+
+    function loop() {
+      if (p1Mx > 0) {p1Mx -= 1;}
+      if (p2Mx > 0) {p2Mx -= 1;}
+      $("#p1").css("fill", "rgb(0," + p1Mx * 2 + "," + p1Mx * 2 + ")");
+      $("#p2").css("fill", "rgb(" + p2Mx * 2 + ",0," + p2Mx * 2 + ")");
+    }
+
+  </script>
+</body>
+</html>
