@@ -1,0 +1,3 @@
+if (self.CavalryLogger) { CavalryLogger.start_js(["gQXiU"]); }
+
+__d('ChatThreadIsMutedTabSheet.react',['cx','fbt','React','Link.react'],(function a(b,c,d,e,f,g,h,i){'use strict';var j=function k(l){return (c('React').createElement('div',{className:"_2phz"},c('React').createElement('div',{className:"_yk1",'data-jsid':'text'},i._("This conversation is muted. Chat tabs will not pop up for it and push notifications are off."),c('React').createElement(c('Link.react'),{'data-jsid':'unmuteButton',className:"_2phz",onClick:l.onUnmute},i._("Unmute")))));};f.exports=j;}),null);
